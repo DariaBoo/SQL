@@ -3,65 +3,77 @@ package ua.foxminded.domain;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 
+ * @author Bogush Daria
+ * @version 1.0
+ *
+ */
 public class Student {
     private int studentID;
     private int groupID;
     private String firstName;
     private String lastName;
     private List<String> courses;
-    
-    
-    private Student(int studentID, String firstName, String lastName, int groupID, List<String> courses) {    
+
+    private Student(int studentID, String firstName, String lastName, int groupID, List<String> courses) {
         this.studentID = studentID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.groupID = groupID;
         this.courses = courses;
     }
-    
+
     public static StudentBuidler builder() {
         return new StudentBuidler();
     }
-   
-    public static class StudentBuidler{
+
+    public static class StudentBuidler {
         private int studentID;
         private int groupID;
         private String firstName;
         private String lastName;
         private List<String> courses;
-        
+
         public StudentBuidler setStudentID(int studentID) {
-            if(studentID>0) {
-            this.studentID = studentID;
+            if (studentID > 0) {
+                this.studentID = studentID;
             }
             return this;
         }
+
         public StudentBuidler setFirstName(String firstName) {
             this.firstName = Objects.requireNonNull(firstName,
                     "Student's name must not be null. NullPointerException inside Student constructor.");
             return this;
         }
+
         public StudentBuidler setLastName(String lastName) {
             this.lastName = Objects.requireNonNull(lastName,
                     "Student's name must not be null. NullPointerException inside Student constructor.");
             return this;
         }
+
         public StudentBuidler setGroupID(int groupID) {
-            if(groupID>0) {
-            this.groupID = groupID;
+            if (groupID > 0) {
+                this.groupID = groupID;
             }
             return this;
-        }       
+        }
+
         public StudentBuidler setCourses(List<String> courses) {
             this.courses = courses;
             return this;
         }
+
         public Student buildWith(Object object) {
             return construct(object).build();
         }
+
         private StudentBuidler construct(Object object) {
             return this;
         }
+
         public Student build() {
             return new Student(studentID, firstName, lastName, groupID, courses);
         }
@@ -128,5 +140,5 @@ public class Student {
         if (studentID != other.studentID)
             return false;
         return true;
-    }    
+    }
 }

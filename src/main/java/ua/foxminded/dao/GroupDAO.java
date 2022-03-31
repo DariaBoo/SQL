@@ -14,11 +14,13 @@ import ua.foxminded.domain.Group;
  */
 public interface GroupDAO {
     /**
-     * The method selects groups from the database that are less or equal inputing group size
+     * The method selects groups from the database that are less or equal inputing
+     * group size
+     * 
      * @param groupSize
      * @return List<Group>
      * @see Group
      * @throws DAOException
      */
-    public Optional<List<Group>> selectBySize(int groupSize) throws DAOException;    
+    public Optional<List<Group>> selectBySize(int groupSize) throws DAOException;
 }

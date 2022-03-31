@@ -2,42 +2,52 @@ package ua.foxminded.domain;
 
 import java.util.List;
 
-
+/**
+ * 
+ * @author Bogush Daria
+ * @version 1.0
+ *
+ */
 public class Group {
     private int groupID;
     private String groupName;
     private List<String> students;
     private int studentCount;
-    
+
     public Group(int groupID, String groupName, int studentCount) {
         this.groupID = groupID;
         this.groupName = groupName;
         this.studentCount = studentCount;
     }
-    
+
     public Integer getGroupID() {
         return groupID;
     }
+
     public String getGroupName() {
         return groupName;
     }
-    
+
     public void setGroupID(int groupID) {
         this.groupID = groupID;
     }
+
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
-    
+
     public int getStudentCount() {
         return studentCount;
     }
+
     public void setStudentCount(int studentCount) {
         this.studentCount = studentCount;
     }
+
     public List<String> getStudents() {
         return students;
     }
+
     public void setStudents(List<String> students) {
         this.students = students;
     }

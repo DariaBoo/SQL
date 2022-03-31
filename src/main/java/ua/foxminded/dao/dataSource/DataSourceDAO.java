@@ -5,10 +5,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -17,14 +15,19 @@ import com.zaxxer.hikari.HikariDataSource;
  * @author Bogush Daria
  * @version 1.0
  */
-public class DataSourceDAO {
+public class DataSourceDAO extends DataSourceDAOConfig {
     private static HikariConfig config = new HikariConfig();
     private static HikariDataSource dataSourse;
-    private static String configFile = "dbconfig.properties";
+    private static String configFile = null;
     private static final Logger log = LoggerFactory.getLogger(DataSourceDAO.class.getName());
 
     static {
         log.info("Create HikariDataSource with dbconfig.properties");
+        configFile = DataSourceDAOConfig.getConfigFile();
+        if (configFile == null) {
+            configFile = "dbconfig.properties";
+        }
+        log.debug("Set configFile {} ", configFile);
         Properties properties = new Properties();
         try {
             log.debug("Get configFile by Properties");
@@ -43,9 +46,9 @@ public class DataSourceDAO {
         log.trace("Set validation timeout as 1 min");
         dataSourse.setValidationTimeout(60000L);
     }
-    
+
     private DataSourceDAO() {
-        
+
     }
 
     /**

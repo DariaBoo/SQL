@@ -9,16 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ua.foxminded.dao.DAOLauncher;
 import ua.foxminded.dao.dataSource.DataSourceDAO;
+import ua.foxminded.dao.dataSource.DataSourceDAOConfig;
 import ua.foxminded.dao.exception.DAOException;
-
-import com.google.common.annotations.VisibleForTesting;
 
 /**
  * 
@@ -26,51 +23,52 @@ import com.google.common.annotations.VisibleForTesting;
  * @version 1.0
  *
  */
-public class DAOLauncherImpl implements DAOLauncher{
+public class DAOLauncherImpl implements DAOLauncher {
     private static DAOLauncherImpl instance;
-    private DataSourceDAO dataSource;
-    
+    private static final String createTablesScript = "src/main/resources/createTables.sql";
+    private static final String fillTablesScript = "src/main/resources/fillTables.sql";
     private final String MESSAGE_FILE_NOT_FOUND = " - file not found in directory src/main/resources.";
     private static final Logger log = LoggerFactory.getLogger(DAOLauncherImpl.class.getName());
 
-    
     private DAOLauncherImpl() {
-        
+
     }
+
     /**
      * Creates a CourseDAOImpl with ConnectionPool for tests
+     * 
      * @author Bogush Daria
      * @param connectionPool
      * @see DataSourceDAO
      */
-    public DAOLauncherImpl(DataSourceDAO dataSource) {
-        this.dataSource = dataSource;        
+    public DAOLauncherImpl(String configFile) {
+        DataSourceDAOConfig.setConfigFile(configFile);
     }
+
     /**
      * Returns instance of the class
+     * 
      * @author Bogush Daria
      */
     public static DAOLauncherImpl getInstance() {
         log.trace("Get class instance");
-        if(instance == null) {
+        if (instance == null) {
             instance = new DAOLauncherImpl();
         }
         return instance;
     }
+
     /**
-     * The method prepares the database by executing scripts and assigning groups and
-     * courses to students
-     * 
-     * @author Bogush Daria
+     * {@inheritDoc}
      */
     @Override
-    public final void prepareDB(String createTablesScript, String fillTablesScript) {
+    public final void prepareDB() {
         log.info("Start method prepareDB");
         try {
             log.info("Execute script {}", createTablesScript);
             executeScript(createTablesScript);
-            log.info("Execute script {}",fillTablesScript);
-            executeScript(fillTablesScript); 
+            log.info("Execute script {}", fillTablesScript);
+            executeScript(fillTablesScript);
             log.info("Assign groups to students by method {}", "assignGroupsToStudents()");
             DataAssignerDAOImpl.getInstance().assignGroupsToStudents();
             log.info("Assign courses to students by method {}", "assignCoursesToStudents()");
@@ -82,8 +80,7 @@ public class DAOLauncherImpl implements DAOLauncher{
         }
         log.info("End of database preparation");
     }
-    
-    @VisibleForTesting
+
     private void executeScript(String fileDirectory) throws DAOException {
         log.info("Start execute script {}", fileDirectory);
         try {
@@ -92,14 +89,14 @@ public class DAOLauncherImpl implements DAOLauncher{
                 throw new FileNotFoundException(Paths.get(fileDirectory).getFileName() + MESSAGE_FILE_NOT_FOUND);
             } else if (Files.size(Paths.get(fileDirectory)) == 0) {
                 log.error("File {} is empty", Paths.get(fileDirectory).getFileName());
-                throw new DAOException("File '" + fileDirectory + "' is empty."); 
+                throw new DAOException("File '" + fileDirectory + "' is empty.");
             } else {
                 log.debug("Get connection");
-                try (Connection connection = DataSourceDAO.getConnection();     
+                try (Connection connection = DataSourceDAO.getConnection();
                         Reader reader = new BufferedReader(new FileReader(fileDirectory))) {
                     ScriptRunner runner = new ScriptRunner(connection);
-                    log.debug("Read file {}", fileDirectory);
                     runner.runScript(reader);
+                    log.debug("Read the file {}", fileDirectory);
                 } catch (SQLException sqlE) {
                     log.error("Connection fail", sqlE);
                     throw new DAOException("Failed to connect to the database while execute script.", sqlE);
@@ -107,7 +104,7 @@ public class DAOLauncherImpl implements DAOLauncher{
             }
         } catch (IOException exception) {
             log.error("Can't find the file " + fileDirectory + " in the DAOLauncher class.", exception);
-            throw new DAOException("Can't find the file " + fileDirectory + " in the DAOLauncher class.", exception); 
+            throw new DAOException("Can't find the file " + fileDirectory + " in the DAOLauncher class.", exception);
         }
         log.info("End of script executing");
     }

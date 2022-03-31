@@ -3,6 +3,7 @@ package ua.foxminded.dao.implementation;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,59 +23,46 @@ import ua.foxminded.domain.Student;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class StudentDAOImplTest {
-    private String configFile = "h2config.properties";
+    private final String configFile = "h2config.properties";
     private final String SCRIPT = "src/test/resources/tablesTest.sql";
-    
-    private DataSourceDAO source;
     private StudentDAOImpl studentDao;
-    private Connection connection;
-    private List<Student> list;
-    
-    @BeforeAll
-    void initializeTestDatabase() throws SQLException  {
-        Server server = Server.createTcpServer().start();
-        source = new DataSourceDAO(configFile);
-        connection = source.getConnection();
-        PreparationH2Test test = new PreparationH2Test();
-        test.executeScript(connection, SCRIPT);
-        studentDao = new StudentDAOImpl(source);
 
+    @BeforeAll
+    void initializeTestDatabase() throws DAOException, FileNotFoundException {
+        studentDao = new StudentDAOImpl(configFile);
+        PreparationH2Test test = new PreparationH2Test();
+        test.executeScript(SCRIPT);
     }
-    @AfterAll
-    void closeTestDatabase() throws SQLException {
-        connection.close();
-    }   
+
     @Test
     void addStudent_shouldReturn1_whenInputFirstAndLastNames() throws DAOException {
         Student student = new Student.StudentBuidler().setFirstName("Harry").setLastName("Potter").build();
         assertEquals(1, studentDao.addStudent(student).getAsInt());
     }
+
     @Test
     void addStudent_shouldReturn1_whenInputEmptyFirstAndLastNames() throws DAOException {
         Student student = new Student.StudentBuidler().setFirstName("").setLastName("").build();
         assertEquals(1, studentDao.addStudent(student).getAsInt());
     }
+
     @Test
     void removeStudent_shouldReturn1_whenInputStudentID() throws DAOException {
         assertEquals(0, studentDao.removeStudent(10).getAsInt());
     }
+
     @Test
     void removeStudent_shouldReturn0_whenInputStudentIDWhichNotExist() throws DAOException {
         assertEquals(1, studentDao.removeStudent(10).getAsInt());
     }
+
     @Test
     void findStudentsByCourse() throws DAOException {
         List<Student> list = new ArrayList<Student>();
-        list.add(new Student.StudentBuidler().setStudentID(2)
-                        .setFirstName("Seamus").setLastName("Longbottom")
-                        .build());
-        list.add(new Student.StudentBuidler().setStudentID(3)
-                .setFirstName("Lisa").setLastName("Macmillan")
-                .build());
-        list.add(new Student.StudentBuidler().setStudentID(4)
-                .setFirstName("Hannah").setLastName("Thomas")
-                .build());
-        
+        list.add(new Student.StudentBuidler().setStudentID(2).setFirstName("Seamus").setLastName("Longbottom").build());
+        list.add(new Student.StudentBuidler().setStudentID(3).setFirstName("Lisa").setLastName("Macmillan").build());
+        list.add(new Student.StudentBuidler().setStudentID(4).setFirstName("Hannah").setLastName("Thomas").build());
+
         assertEquals(list, studentDao.findStudentsByCourse("potions").get());
     }
 }

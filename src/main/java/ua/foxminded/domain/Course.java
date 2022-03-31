@@ -2,39 +2,52 @@ package ua.foxminded.domain;
 
 import java.util.List;
 
+/**
+ * 
+ * @author Bogush Daria
+ * @version 1.0
+ *
+ */
 public class Course {
     private int courseID;
     private String courseName;
     private String courseDescription;
     private List<Integer> students;
-      
+
     public Course(int courseID, String courseName, String courseDescription) {
         this.courseID = courseID;
         this.courseName = courseName;
         this.courseDescription = courseDescription;
     }
-    
+
     public int getCourseID() {
         return courseID;
     }
+
     public void setCourseID(int courseID) {
         this.courseID = courseID;
     }
+
     public String getCourseName() {
         return courseName;
     }
+
     public void setCourseName(String courseName) {
         this.courseName = courseName;
     }
+
     public String getCourseDescription() {
         return courseDescription;
     }
+
     public void setCourse_description(String courseDescription) {
         this.courseDescription = courseDescription;
     }
+
     public List<Integer> getStudents() {
         return students;
     }
+
     public void setStudents(List<Integer> students) {
         this.students = students;
     }

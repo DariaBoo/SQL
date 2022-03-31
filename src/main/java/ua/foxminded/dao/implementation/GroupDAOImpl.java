@@ -7,12 +7,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ua.foxminded.dao.GroupDAO;
 import ua.foxminded.dao.dataSource.DataSourceDAO;
+import ua.foxminded.dao.dataSource.DataSourceDAOConfig;
 import ua.foxminded.dao.exception.DAOException;
 import ua.foxminded.domain.Group;
 
@@ -24,7 +23,6 @@ import ua.foxminded.domain.Group;
  */
 public class GroupDAOImpl implements GroupDAO {
     private static GroupDAOImpl instance;
-    private DataSourceDAO dataSource;
     private static final Logger log = LoggerFactory.getLogger(GroupDAOImpl.class.getName());
     private static final String SQL_SELECTBYSIZE = "SELECT * FROM schoolmanager.groups WHERE count_of_students <= ? ORDER BY group_id ASC";
 
@@ -39,8 +37,8 @@ public class GroupDAOImpl implements GroupDAO {
      * @param dataSource
      * @see DataSourceDAO
      */
-    public GroupDAOImpl(DataSourceDAO dataSource) {
-        this.dataSource = dataSource;
+    public GroupDAOImpl(String configFile) {
+        DataSourceDAOConfig.setConfigFile(configFile);
     }
 
     /**
@@ -63,19 +61,18 @@ public class GroupDAOImpl implements GroupDAO {
     public Optional<List<Group>> selectBySize(int groupSize) throws DAOException {
         log.info("Select groups with less or equal groupSize {}", groupSize);
         ResultSet resultSet = null;
-        List<Group> groups = new ArrayList<>();               
+        List<Group> groups = new ArrayList<>();
         log.debug("Get connection");
-        try (Connection connection = DataSourceDAO.getConnection(); 
+        try (Connection connection = DataSourceDAO.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SQL_SELECTBYSIZE)) {
-            log.trace("Set groupSize {}", groupSize);
             statement.setInt(1, groupSize);
+            log.trace("Set groupSize {}", groupSize);
             resultSet = statement.executeQuery();
-
             while (resultSet.next()) {
-                log.debug("Take from resultSet");   
                 groups.add(new Group(resultSet.getInt("group_id"), resultSet.getString("group_name"),
                         resultSet.getInt("count_of_students")));
             }
+            log.debug("Took from resultSet {}", groups);
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while select groups by size.", sqlE);
