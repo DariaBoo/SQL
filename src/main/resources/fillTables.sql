@@ -8,7 +8,7 @@ insert into schoolManager.courses (course_name, description) values ('Dark Arts'
 insert into schoolManager.courses (course_name, description) values ('Charms','the study of spells concerned with giving an object new properties.');
 insert into schoolManager.courses (course_name, description) values ('Flying','the study of flying of broomsticks.');
 insert into schoolManager.courses (course_name, description) values ('Magical Theory','the study of  magic from a purely theoretical view.');
-insert into schoolManager.courses (course_name, description) values ('Ghoul Studies','the study of ghouls  and  other similar creatures.');
+insert into schoolManager.courses (course_name, description) values ('Ghoul studies','the study of ghouls  and  other similar creatures.');
 
 insert into schoolManager.groups (group_name) values ('WS-75');
 insert into schoolManager.groups (group_name) values ('CE-46');
