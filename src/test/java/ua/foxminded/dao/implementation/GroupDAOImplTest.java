@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import ua.foxminded.dao.PreparationH2Test;
+import ua.foxminded.dao.LaunchH2Test;
 import ua.foxminded.dao.dataSource.DataSourceDAO;
 import ua.foxminded.dao.exception.DAOException;
 import ua.foxminded.domain.Group;
@@ -29,7 +29,7 @@ class GroupDAOImplTest {
     @BeforeAll
     void initializeTestDatabase() throws DAOException, FileNotFoundException {
         groupDao = new GroupDAOImpl(configFile);
-        PreparationH2Test test = new PreparationH2Test();
+        LaunchH2Test test = new LaunchH2Test();
         test.executeScript(SCRIPT);
     }
 

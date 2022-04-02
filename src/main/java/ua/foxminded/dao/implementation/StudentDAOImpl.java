@@ -1,5 +1,7 @@
 package ua.foxminded.dao.implementation;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,6 +68,8 @@ public class StudentDAOImpl implements StudentDAO {
      */
     @Override
     public OptionalInt addStudent(Student student) throws DAOException {
+        int result = 0;
+        ResultSet resultSet = null;
         log.info("Add new student to the table 'students' with name {} and surname {}", student.getFirstName(),
                 student.getLastName());
         String sql = String.format(SQL_ADDSTUDENT, student.getFirstName(), student.getLastName());
@@ -73,12 +77,26 @@ public class StudentDAOImpl implements StudentDAO {
         log.debug("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 Statement statement = connection.createStatement()) {
-            OptionalInt result = OptionalInt.of(statement.executeUpdate(sql));
-            log.debug("ExecuteUpdate sql and get the result {}", result);
-            return result;
+            statement.executeUpdate(sql, RETURN_GENERATED_KEYS);
+            resultSet = statement.getGeneratedKeys();
+            if(resultSet.next()) {
+                result = resultSet.getInt(1);
+            }
+            log.debug("ExecuteUpdate sql and got the student's id {}", result);
+            return OptionalInt.of(result);
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while add new student", sqlE);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                    log.debug("ResultSet closed");
+                }
+            } catch (SQLException sqlE) {
+                log.error("Fail to close the resultSet", sqlE);
+                throw new DAOException("Fail to close the database while add new student.", sqlE);
+            }
         }
     }
 

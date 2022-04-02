@@ -143,7 +143,7 @@ public class CourseDAOImpl implements CourseDAO {
      * {@inheritDoc}
      */
     @Override
-    public OptionalInt deleteFromCourse(int studentID, int courseID) throws DAOException {
+    public OptionalInt deleteStudentFromCourse(int studentID, int courseID) throws DAOException {
         log.info("Delete student from his/her course by studentID {} and courseID {}", studentID, courseID);
         log.trace("Create sql query {} with studentId {} and courseID {}", SQL_DELETESTUDENTFROMCOURSE, studentID,
                 courseID);

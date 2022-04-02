@@ -57,5 +57,5 @@ public interface CourseDAO {
      * @return number of deleted rows
      * @throws DAOException if a database access error occurs.
      */
-    public OptionalInt deleteFromCourse(int studentID, int courseID) throws DAOException;
+    public OptionalInt deleteStudentFromCourse(int studentID, int courseID) throws DAOException;
 }

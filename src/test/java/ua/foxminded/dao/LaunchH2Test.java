@@ -15,7 +15,7 @@ import ua.foxminded.dao.dataSource.DataSourceDAO;
 import ua.foxminded.dao.dataSource.DataSourceDAOConfig;
 import ua.foxminded.dao.exception.DAOException;
 
-public class PreparationH2Test {
+public class LaunchH2Test {
     private String configFile = "h2config.properties";
     private static final String SQL_ADDSTUDENTTOCOURSE = "INSERT INTO schoolmanager.student_course (student_id,course_id) VALUES (%d,%d)";
 

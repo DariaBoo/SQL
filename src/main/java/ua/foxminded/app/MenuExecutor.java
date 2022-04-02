@@ -123,7 +123,8 @@ public class MenuExecutor {
             log.debug("Create new Student with input firstName {} and lastName {}", firstName, lastName);
             int result = StudentDAOImpl.getInstance().addStudent(student).getAsInt();
             log.debug("Took result {} of adding the student", result);
-            System.out.println(result != 0 ? "The student was added correctly \n"
+            System.out.println(result);
+            System.out.println(result != 0 ? "The student with id " + result + " was added correctly \n"
                     : "Error occurs while adding a student. Please try again\n");
         } else {
             log.info("Empty firstName or lastName, output message");
@@ -210,7 +211,7 @@ public class MenuExecutor {
         int result = 0;
         log.info("Check if studentId and courseId is bigger than 0");
         if (studentID > 0 && courseID > 0) {
-            result = CourseDAOImpl.getInstance().deleteFromCourse(studentID, courseID).getAsInt();
+            result = CourseDAOImpl.getInstance().deleteStudentFromCourse(studentID, courseID).getAsInt();
             log.debug("Took result {} of deleting the student from the course", result);
         }
         if (result != 0) {
