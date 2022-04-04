@@ -51,10 +51,10 @@ public class DAOLauncherImpl implements DAOLauncher {
      * @author Bogush Daria
      */
     public static DAOLauncherImpl getInstance() {
-        log.trace("Get class instance");
         if (instance == null) {
             instance = new DAOLauncherImpl();
         }
+        log.info("Got the class instance");
         return instance;
     }
 
@@ -63,7 +63,7 @@ public class DAOLauncherImpl implements DAOLauncher {
      */
     @Override
     public final void prepareDB() {
-        log.info("Start method prepareDB");
+        log.trace("Start method prepareDB");
         try {
             log.info("Execute script {}", createTablesScript);
             executeScript(createTablesScript);
@@ -78,11 +78,11 @@ public class DAOLauncherImpl implements DAOLauncher {
             System.err.println("Exception Message : " + daoE.getMessage());
             System.exit(0);
         }
-        log.info("End of database preparation");
+        log.trace("End of database preparation");
     }
 
     private void executeScript(String fileDirectory) throws DAOException {
-        log.info("Start execute script {}", fileDirectory);
+        log.trace("Start execute script {}", fileDirectory);
         try {
             if (!Files.exists(Paths.get(fileDirectory))) {
                 log.error("File {} doesn't exist", Paths.get(fileDirectory).getFileName());
@@ -91,7 +91,7 @@ public class DAOLauncherImpl implements DAOLauncher {
                 log.error("File {} is empty", Paths.get(fileDirectory).getFileName());
                 throw new DAOException("File '" + fileDirectory + "' is empty.");
             } else {
-                log.debug("Get connection");
+                log.info("Get connection");
                 try (Connection connection = DataSourceDAO.getConnection();
                         Reader reader = new BufferedReader(new FileReader(fileDirectory))) {
                     ScriptRunner runner = new ScriptRunner(connection);
@@ -106,6 +106,6 @@ public class DAOLauncherImpl implements DAOLauncher {
             log.error("Can't find the file " + fileDirectory + " in the DAOLauncher class.", exception);
             throw new DAOException("Can't find the file " + fileDirectory + " in the DAOLauncher class.", exception);
         }
-        log.info("End of script executing");
+        log.trace("End of script executing");
     }
 }

@@ -26,21 +26,21 @@ public class AppMenu {
      * @param args
      */
     public static void main(String[] args) {
-        log.info("Start program");
+        log.trace("Start program");
         log.info("Prepare database");
         DAOLauncherImpl.getInstance().prepareDB();
         int button = 0;
         log.info("Do menu");
         do {
             System.out.println("To display menu press 1");
-            log.debug("Input by scanner");
             button = input.nextInt();
+            log.debug("Input by scanner {}", button);
             if (button == 1) {
                 log.trace("Display menu");
                 displayMenu();
             }
-            log.debug("Input by scanner");
             button = input.nextInt();
+            log.debug("Input by scanner {}", button);
             try {
                 if (button == 1) {
                     log.info("Execute option 1");
@@ -68,15 +68,15 @@ public class AppMenu {
             }
         } while (button != 0);
         input.close();
-        log.debug("Scanner is closed");
-        log.info("End program");
+        log.info("Scanner is closed");
+        log.trace("End program");
     }
 
     private static void displayMenu() {
-        log.info("Start to display menu");
+        log.trace("Start to display menu");
         for (MenuOptions option : EnumSet.allOf(MenuOptions.class)) {
             System.out.println(option.getDescription());
         }
-        log.info("End of menu display");
+        log.trace("End of menu display");
     }
 }

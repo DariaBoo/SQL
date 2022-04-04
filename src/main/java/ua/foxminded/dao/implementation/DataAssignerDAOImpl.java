@@ -59,10 +59,10 @@ public class DataAssignerDAOImpl implements DataAssignerDAO {
      * @author Bogush Daria
      */
     public static DataAssignerDAOImpl getInstance() {
-        log.debug("Create instance of DataAssignerDAOImpl");
         if (instance == null) {
             instance = new DataAssignerDAOImpl();
         }
+        log.info("Got the class instance");
         return instance;
     }
 
@@ -71,26 +71,26 @@ public class DataAssignerDAOImpl implements DataAssignerDAO {
      */
     @Override
     public void assignCoursesToStudents() throws DAOException {
-        log.info("Assign courses to students");
-        log.debug("Get connection");
+        log.trace("Assign courses to students");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SQL_SETCOURSESTOSTUDENT)) {
             countOfStudents = countRows(connection, SQL_COUNTOFSTUDENTS);
             log.debug("Got count of students {} from the database", countOfStudents);
             int countOfCourses = countRows(connection, SQL_COUNTOFCOURSES);
-            log.trace("Got count of courses {} from the database", countOfCourses);
-            log.info("Start iteration till countOfStudents {}", countOfStudents);
+            log.debug("Got count of courses {} from the database", countOfCourses);
+            log.trace("Start iteration till countOfStudents {}", countOfStudents);
             for (int i = 1; i <= countOfStudents; i++) {
                 List<Integer> coursesID = shuffleID(countOfCourses);
-                log.trace("Got shuffle list coursesID {}", coursesID);
+                log.debug("Got shuffle list coursesID {}", coursesID);
                 int coursesRange = randomizeSize(courseCountMin, courseCountMax);
-                log.trace("Got random range of course beetwen 1 to 3");
-                log.info("Start iteration till courseRange {}", coursesRange);
+                log.debug("Got random range of course beetwen 1 to 3");
+                log.trace("Start iteration till courseRange {}", coursesRange);
                 for (int j = 0; j < coursesRange; j++) {
                     statement.setInt(1, i);
-                    log.trace("Set studentID {} to the student_course table", i);
+                    log.info("Set studentID {} to the student_course table", i);
                     statement.setInt(2, coursesID.get(j));
-                    log.trace("Set courseID {} to the student_course table", coursesID.get(j));
+                    log.info("Set courseID {} to the student_course table", coursesID.get(j));
                     statement.execute();
                 }
             }
@@ -105,44 +105,45 @@ public class DataAssignerDAOImpl implements DataAssignerDAO {
      */
     @Override
     public void assignGroupsToStudents() throws DAOException {
-        log.info("Assign groups to students");
-        log.debug("Get connection");
+        log.trace("Assign groups to students");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 PreparedStatement statement1 = connection.prepareStatement(SQL_SETGROUPTOSTUDENT);
                 PreparedStatement statement2 = connection.prepareStatement(SQL_SETCOUNTOFSTUDENTS)) {
             countOfStudents = countRows(connection, SQL_COUNTOFSTUDENTS);
-            log.trace("Got count of students from the database");
+            log.debug("Got count of students from the database");
             int countOfGroups = countRows(connection, SQL_COUNTOFGROUPS);
-            log.trace("Got count of students from the database");
+            log.debug("Got count of students from the database");
             List<Integer> studentsID = shuffleID(countOfStudents);
-            log.trace("Got shuffle list with students ID");
+            log.debug("Got shuffle list with students ID");
             List<Integer> groupsID = shuffleID(countOfGroups);
-            log.trace("Got shuffle list with groups ID");
-            log.info("Start iteration till countOfGroups {}", countOfGroups);
+            log.debug("Got shuffle list with groups ID");
+            log.trace("Start iteration till countOfGroups {}", countOfGroups);
             for (int i = 0; i < countOfGroups; i++) {
                 int groupID = groupsID.get(i);
                 int groupSize = randomizeSize(groupSizeMin, groupSizeMax);// random number between 10 and 30
-                log.trace("Got random size of group");
+                log.debug("Got random size of group");
                 if (studentsID.size() < groupSize) {
                     groupSize = studentsID.size();
                 }
+                log.trace("Start iteration till groupSize {}", groupSize);
                 for (int j = 0; j < groupSize; j++) {
                     if (studentsID.size() > groupSizeMin) {
                         statement1.setInt(1, groupID);
                         statement1.setInt(2, studentsID.get(j));
                         statement1.execute();
-                        log.trace("Set groupID {} to the student table for studentID {}", groupID, studentsID);
+                        log.debug("Set groupID {} to the student table for studentID {}", groupID, studentsID);
 
                         statement2.setInt(1, groupSize);
                         statement2.setInt(2, groupID);
                         statement2.execute();
-                        log.trace("Set group size {} to the group ID {} in the groups table", groupSize, groupID);
+                        log.debug("Set group size {} to the group ID {} in the groups table", groupSize, groupID);
                     } else {
                         break;
                     }
                 }
                 studentsID = studentsID.subList(groupSize, studentsID.size());
-                log.trace("Change size {] of list studentsID", studentsID);
+                log.info("Change size {] of list studentsID", studentsID);
             }
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
@@ -151,20 +152,23 @@ public class DataAssignerDAOImpl implements DataAssignerDAO {
     }
 
     private List<Integer> shuffleID(int countOfTableRows) {
-        log.info("Shuffle list");
+        log.trace("Shuffle list");
         List<Integer> result = new ArrayList<>();
+        log.trace("Start iteration till countOfTableRows {}", countOfTableRows);
         for (int i = 0; i < countOfTableRows; i++) {
             result.add(i + 1);
         }
         Collections.shuffle(result);
-        log.debug("Got shuffle list {}", result);
+        log.debug("Got shuffled list {}", result);
         return result;
     }
 
     private int countRows(Connection connection, String sql) throws DAOException {
-        log.info("Count rows of table");
+        log.trace("Count rows of table");
         int result = 0;
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        try (Statement statement = connection.createStatement(); 
+                ResultSet resultSet = statement.executeQuery(sql)) {
+            log.info("Executed sql query {}", sql);
             resultSet.next();
             result = resultSet.getInt(1);
             log.debug("Got the count of rows {}", result);
@@ -176,7 +180,7 @@ public class DataAssignerDAOImpl implements DataAssignerDAO {
     }
 
     private int randomizeSize(int min, int max) {
-        log.info("Create random number beetwen {} and {}", min, max);
+        log.trace("Create random number beetwen {} and {}", min, max);
         return random.nextInt((max - min) + 1) + min;
     }
 }

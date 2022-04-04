@@ -47,10 +47,10 @@ public class GroupDAOImpl implements GroupDAO {
      * @author Bogush Daria
      */
     public static GroupDAOImpl getInstance() {
-        log.trace("Get class instance");
         if (instance == null) {
             instance = new GroupDAOImpl();
         }
+        log.info("Got the class instance");
         return instance;
     }
 
@@ -59,20 +59,21 @@ public class GroupDAOImpl implements GroupDAO {
      */
     @Override
     public Optional<List<Group>> selectBySize(int groupSize) throws DAOException {
-        log.info("Select groups with less or equal groupSize {}", groupSize);
+        log.trace("Select groups with less or equal groupSize {}", groupSize);
         ResultSet resultSet = null;
         List<Group> groups = new ArrayList<>();
-        log.debug("Get connection");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SQL_SELECTBYSIZE)) {
             statement.setInt(1, groupSize);
-            log.trace("Set groupSize {}", groupSize);
             resultSet = statement.executeQuery();
+            log.info("Executed sql query {} with groupSize {}", SQL_SELECTBYSIZE, groupSize);
             while (resultSet.next()) {
                 groups.add(new Group(resultSet.getInt("group_id"), resultSet.getString("group_name"),
                         resultSet.getInt("count_of_students")));
             }
             log.debug("Took from resultSet {}", groups);
+            return Optional.ofNullable(groups);
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while select groups by size.", sqlE);
@@ -80,14 +81,12 @@ public class GroupDAOImpl implements GroupDAO {
             try {
                 if (resultSet != null) {
                     resultSet.close();
-                    log.debug("ResultSet closed");
+                    log.info("ResultSet closed");
                 }
             } catch (SQLException sqlE) {
                 log.error("Fail to close the resultSet", sqlE);
                 throw new DAOException("Fail to close the database while select groups by size.", sqlE);
             }
         }
-        log.debug("Make list optional");
-        return Optional.ofNullable(groups);
     }
 }

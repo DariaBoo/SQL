@@ -22,7 +22,7 @@ public class DataSourceDAO extends DataSourceDAOConfig {
     private static final Logger log = LoggerFactory.getLogger(DataSourceDAO.class.getName());
 
     static {
-        log.info("Create HikariDataSource with dbconfig.properties");
+        log.trace("Create HikariDataSource with dbconfig.properties");
         configFile = DataSourceDAOConfig.getConfigFile();
         if (configFile == null) {
             configFile = "dbconfig.properties";
@@ -37,11 +37,11 @@ public class DataSourceDAO extends DataSourceDAOConfig {
             log.error("Fail to load configFile", e);
             throw new RuntimeException("IOException in DataSource class", e);
         }
-        log.debug("Set database config");
+        log.info("Set database config");
         config.setJdbcUrl(properties.getProperty("DB_URL"));
         config.setUsername(properties.getProperty("DB_USER"));
         config.setPassword(properties.getProperty("DB_PASSWORD"));
-        log.debug("Create new HikariDataSource with config");
+        log.info("Create new HikariDataSource with config");
         dataSourse = new HikariDataSource(config);
         log.trace("Set validation timeout as 1 min");
         dataSourse.setValidationTimeout(60000L);

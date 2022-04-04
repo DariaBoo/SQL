@@ -37,16 +37,16 @@ public class MenuExecutor {
      * @throws DAOException if a database access error occurs.
      */
     protected static final void executeOption1(Scanner input) throws DAOException {
-        log.info("Start option 1");
+        log.trace("Start option 1");
         System.out.println("Please enter student count: ");
         int studentCount = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, studentCount);
-        log.info("Check if studentCount is beetwen %d and %d, studentCount %d", MIN_GROUP_SIZE, MAX_GROUP_SIZE,
+        log.trace("Check if studentCount is beetwen {} and {}, studentCount {}", MIN_GROUP_SIZE, MAX_GROUP_SIZE,
                 studentCount);
         if (studentCount >= MIN_GROUP_SIZE && studentCount <= MAX_GROUP_SIZE) {
             List<Group> list = GroupDAOImpl.getInstance().selectBySize(studentCount).get();
             log.debug("Took optional {} by method GroupDAOImpl.getInstance().selectBySize(studentCount)", list);
-            log.info("Check if list is empty");
+            log.warn("Check if list is empty");
             if (!list.isEmpty()) {
                 System.out.print(String.format(GROUP_FORMAT, "id", "group_name", "count_of_students"));
                 list.stream().forEach(group -> System.out.printf(GROUP_FORMAT, group.getGroupID(), group.getGroupName(),
@@ -60,7 +60,7 @@ public class MenuExecutor {
             System.out.printf("Group size should be more than %d and less than %d%n", MIN_GROUP_SIZE, MAX_GROUP_SIZE);
             log.info("Student count is {}, output message", studentCount);
         }
-        log.info("End option 1");
+        log.trace("End option 1");
     }
 
     /**
@@ -71,7 +71,7 @@ public class MenuExecutor {
      * @throws DAOException if a database access error occurs.
      */
     protected static final void executeOption2(Scanner input) throws DAOException {
-        log.info("Start option 2");
+        log.trace("Start option 2");
         System.out.println("Press 2 to display all courses, otherwise any button.");
         int button = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, button);
@@ -98,7 +98,7 @@ public class MenuExecutor {
                 log.info("List is empty, output message");
             }
         }
-        log.info("End option 2");
+        log.trace("End option 2");
     }
 
     /**
@@ -109,7 +109,7 @@ public class MenuExecutor {
      * @throws DAOException if a database access error occurs.
      */
     protected static final void executeOption3(Scanner input) throws DAOException {
-        log.info("Start option 3");
+        log.trace("Start option 3");
         System.out.println("Please enter first name: ");
         input.nextLine();
         String firstName = input.nextLine();
@@ -117,7 +117,7 @@ public class MenuExecutor {
         System.out.println("Please enter last name: ");
         String lastName = input.nextLine();
         log.debug(LOG_SCANNER_INPUT, lastName);
-        log.info("Check if firstName and lastName is not empty");
+        log.trace("Check if firstName and lastName is not empty");
         if (!firstName.isEmpty() && !lastName.isEmpty() && firstName != null && lastName != null) {
             Student student = new Student.StudentBuidler().setFirstName(firstName).setLastName(lastName).build();
             log.debug("Create new Student with input firstName {} and lastName {}", firstName, lastName);
@@ -130,7 +130,7 @@ public class MenuExecutor {
             log.info("Empty firstName or lastName, output message");
             System.out.println("Can't add student to the database with empty first or last name");
         }
-        log.info("End option 3");
+        log.trace("End option 3");
     }
 
     /**
@@ -141,18 +141,18 @@ public class MenuExecutor {
      * @throws DAOException if a database access error occurs.
      */
     protected static final void executeOption4(Scanner input) throws DAOException {
-        log.info("Start option 4");
+        log.trace("Start option 4");
         System.out.println(ENTER_ID_MESSAGE);
         int studentID = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, studentID);
-        log.warn("Check if studentID is bigger than 0");
+        log.trace("Check if studentID is bigger than 0");
         if (studentID > 0) {
             int result = StudentDAOImpl.getInstance().removeStudent(studentID).getAsInt();
             log.debug("Took result {} of deleting the student", result);
             System.out.println(result != 0 ? "The student was deleted correctly\n"
                     : "Student with id " + studentID + " doesn't exist\n");
         }
-        log.info("End option 4");
+        log.trace("End option 4");
     }
 
     /**
@@ -163,7 +163,7 @@ public class MenuExecutor {
      * @throws DAOException if a database access error occurs.
      */
     protected static final void executeOption5(Scanner input) throws DAOException {
-        log.info("Start option 5");
+        log.trace("Start option 5");
         System.out.println(ENTER_ID_MESSAGE);
         int studentID = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, studentID);
@@ -179,7 +179,7 @@ public class MenuExecutor {
         System.out.println("Please enter course id: ");
         int courseID = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, courseID);
-        log.info("Check if studentId {} and courseID {] is bigger than 0", studentID, courseID);
+        log.trace("Check if studentId {} and courseID {] is bigger than 0", studentID, courseID);
         if (studentID > 0 && courseID > 0) {
             int result = CourseDAOImpl.getInstance().addStudentToCourse(studentID, courseID).getAsInt();
             log.debug("Took result {} of adding a student to the course", result);
@@ -188,7 +188,7 @@ public class MenuExecutor {
         }
         displayCoursesByStudentID(studentID);
         log.info("Executed the method displayCoursesByStudentID(studentID={})", studentID);
-        log.info("End option 5");
+        log.trace("End option 5");
     }
 
     /**
@@ -199,7 +199,7 @@ public class MenuExecutor {
      * @throws DAOException if a database access error occurs.
      */
     protected static final void executeOption6(Scanner input) throws DAOException {
-        log.info("Start option 6");
+        log.trace("Start option 6");
         System.out.println(ENTER_ID_MESSAGE);
         int studentID = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, studentID);
@@ -209,7 +209,7 @@ public class MenuExecutor {
         int courseID = input.nextInt();
         log.debug(LOG_SCANNER_INPUT, courseID);
         int result = 0;
-        log.info("Check if studentId and courseId is bigger than 0");
+        log.trace("Check if studentId and courseId is bigger than 0");
         if (studentID > 0 && courseID > 0) {
             result = CourseDAOImpl.getInstance().deleteStudentFromCourse(studentID, courseID).getAsInt();
             log.debug("Took result {} of deleting the student from the course", result);
@@ -223,28 +223,28 @@ public class MenuExecutor {
             log.info("The student wasn't removed from the corse");
             System.out.println("Error occurs while removing the student from the course\n");
         }
-        log.info("End option 6");
+        log.trace("End option 6");
     }
 
     private static void displayAllCourses() throws DAOException {
-        log.info("Start display all courses");
+        log.trace("Start display all courses");
         Optional<List<Course>> optional = CourseDAOImpl.getInstance().findAllCourses();
         log.debug("Took optional by method CourseDAOImpl.getInstance().findAllCourses()");
         System.out.print(String.format(COURSE_FORMAT, "id", "name", "description"));
         optional.ifPresent(list -> list.stream().forEach(course -> System.out.printf(COURSE_FORMAT,
                 course.getCourseID(), course.getCourseName(), course.getCourseDescription())));
         log.info("Output optional if present");
-        log.info("End of courses displaying");
+        log.trace("End of courses displaying");
     }
 
     private static void displayCoursesByStudentID(int studentID) throws DAOException {
-        log.info("Start display courses by student id {}", studentID);
+        log.trace("Start display courses by student id {}", studentID);
         Optional<List<Course>> optional = CourseDAOImpl.getInstance().findCoursesByStudentID(studentID);
         log.debug("Took optional by method CourseDAOImpl.getInstance().findCoursesByStudent(studentID)");
         System.out.print(String.format(COURSE_FORMAT, "id", "name", "description"));
         optional.ifPresent(list -> list.stream().forEach(course -> System.out.printf(COURSE_FORMAT,
                 course.getCourseID(), course.getCourseName(), course.getCourseDescription())));
         log.info("Output optional if present");
-        log.info("End of courses displaying");
+        log.trace("End of courses displaying");
     }
 }

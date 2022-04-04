@@ -43,10 +43,10 @@ public class CourseDAOImpl implements CourseDAO {
      * @author Bogush Daria
      */
     public static CourseDAOImpl getInstance() {
-        log.trace("Get class instance");
         if (instance == null) {
             instance = new CourseDAOImpl();
         }
+        log.info("Got the class instance");
         return instance;
     }
 
@@ -66,22 +66,23 @@ public class CourseDAOImpl implements CourseDAO {
      */
     @Override
     public Optional<List<Course>> findAllCourses() throws DAOException {
-        log.info("Find all courses from the database");
+        log.trace("Find all courses from the database");
         List<Course> courses = new ArrayList<>();
-        log.debug("Get connection");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(SQL_FINDALLCOURSES)) {
+            log.info("Executed sql query {}", SQL_FINDALLCOURSES);
             while (resultSet.next()) {
                 courses.add(new Course(resultSet.getInt("course_id"), resultSet.getString("course_name"),
                         resultSet.getString("description")));
             }
             log.debug("Took from the resultSet {}", courses);
+            return Optional.ofNullable(courses);
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while found all courses.", sqlE);
         }
-        return Optional.ofNullable(courses);
     }
 
     /**
@@ -89,26 +90,28 @@ public class CourseDAOImpl implements CourseDAO {
      */
     @Override
     public Optional<List<Course>> findCoursesByStudentID(int studentID) throws DAOException {
-        log.info("Find courses by studentID {}", studentID);
+        log.trace("Find courses by studentID {}", studentID);
         ResultSet resultSet = null;
         List<Course> courses = new ArrayList<>();
-        log.debug("Get connection");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SQL_FINDCOURSESBYSTUDENT)) {
             statement.setInt(1, studentID);
             resultSet = statement.executeQuery();
+            log.info("Executed sql query {} with studentID {}", SQL_FINDCOURSESBYSTUDENT, studentID);
             while (resultSet.next()) {
                 courses.add(new Course(resultSet.getInt("course_id"), resultSet.getString("course_name"),
                         resultSet.getString("description")));
             }
             log.debug("Took from the resultSet {}", courses);
+            return Optional.ofNullable(courses);
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while found all courses by student id.", sqlE);
         } finally {
             try {
                 if (resultSet != null) {
-                    log.debug("ResultSet closed");
+                    log.info("ResultSet closed");
                     resultSet.close();
                 }
             } catch (SQLException sqlE) {
@@ -116,7 +119,6 @@ public class CourseDAOImpl implements CourseDAO {
                 throw new DAOException("Fail to close the database while found all courses by student id.", sqlE);
             }
         }
-        return Optional.ofNullable(courses);
     }
 
     /**
@@ -124,13 +126,14 @@ public class CourseDAOImpl implements CourseDAO {
      */
     @Override
     public OptionalInt addStudentToCourse(int studentID, int courseID) throws DAOException {
-        log.info("Add student to course by studentID {} and courseID {}", studentID, courseID);
+        log.trace("Add student to course by studentID {} and courseID {}", studentID, courseID);
         String sql = String.format(SQL_ADDSTUDENTTOCOURSE, studentID, courseID);
         log.trace("Create sql query {} ", sql);
-        log.debug("Get connection");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 Statement statement = connection.createStatement()) {
             OptionalInt result = OptionalInt.of(statement.executeUpdate(sql));
+            log.info("Executed sql query {} ", sql);
             log.debug("ExecuteUpdate sql and get the result {}", result);
             return result;
         } catch (SQLException sqlE) {
@@ -144,15 +147,16 @@ public class CourseDAOImpl implements CourseDAO {
      */
     @Override
     public OptionalInt deleteStudentFromCourse(int studentID, int courseID) throws DAOException {
-        log.info("Delete student from his/her course by studentID {} and courseID {}", studentID, courseID);
+        log.trace("Delete student from his/her course by studentID {} and courseID {}", studentID, courseID);        
+        String sql = String.format(SQL_DELETESTUDENTFROMCOURSE, studentID, courseID);
         log.trace("Create sql query {} with studentId {} and courseID {}", SQL_DELETESTUDENTFROMCOURSE, studentID,
                 courseID);
-        String sql = String.format(SQL_DELETESTUDENTFROMCOURSE, studentID, courseID);
-        log.debug("Get connection");
+        log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
                 Statement statement = connection.createStatement()) {
             OptionalInt result = OptionalInt.of(statement.executeUpdate(sql));
-            log.debug("ExecuteUpdate sql and get the result {}", result);
+            log.info("Executed sql query {}", sql);
+            log.debug("Got the result {} of deleting the student from the course", result);
             return result;
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
