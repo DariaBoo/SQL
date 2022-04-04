@@ -88,9 +88,9 @@ public class DataAssignerDAOImpl implements DataAssignerDAO {
                 log.trace("Start iteration till courseRange {}", coursesRange);
                 for (int j = 0; j < coursesRange; j++) {
                     statement.setInt(1, i);
-                    log.info("Set studentID {} to the student_course table", i);
+                    log.debug("Set studentID {} to the student_course table", i);
                     statement.setInt(2, coursesID.get(j));
-                    log.info("Set courseID {} to the student_course table", coursesID.get(j));
+                    log.debug("Set courseID {} to the student_course table", coursesID.get(j));
                     statement.execute();
                 }
             }
