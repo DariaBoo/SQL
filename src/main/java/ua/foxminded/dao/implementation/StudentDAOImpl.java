@@ -3,7 +3,6 @@ package ua.foxminded.dao.implementation;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -33,7 +32,7 @@ public class StudentDAOImpl implements StudentDAO {
     private static final String SQL_FINDSTUDENTSBYCOURSE = "SELECT schoolmanager.students.student_id, schoolmanager.students.first_name, schoolmanager.students.last_name from schoolmanager.students\n"
             + "INNER JOIN schoolmanager.student_course ON schoolmanager.student_course.student_id = schoolmanager.students.student_id\n"
             + "INNER JOIN schoolmanager.courses ON schoolmanager.student_course.course_id = schoolmanager.courses.course_id\n"
-            + "WHERE LOWER(schoolmanager.courses.course_name) = ?";
+            + "WHERE LOWER(schoolmanager.courses.course_name) = '%s'";
 
     private StudentDAOImpl() {
 
@@ -69,7 +68,6 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public OptionalInt addStudent(Student student) throws DAOException {
         int result = 0;
-        ResultSet resultSet = null;
         log.trace("Add new student to the table 'students' with name {} and surname {}", student.getFirstName(),
                 student.getLastName());
         String sql = String.format(SQL_ADDSTUDENT, student.getFirstName(), student.getLastName());
@@ -79,25 +77,19 @@ public class StudentDAOImpl implements StudentDAO {
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql, RETURN_GENERATED_KEYS);
             log.info("Executed sql query {}", sql);
-            resultSet = statement.getGeneratedKeys();
-            if(resultSet.next()) {
-                result = resultSet.getInt(1);
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    result = resultSet.getInt(1);
+                }
+                log.debug("Got the id {} of the added student", result);
+                return OptionalInt.of(result);
+            } catch (SQLException sqlE) {
+                log.error("Fail to connect to the database", sqlE);
+                throw new DAOException("Fail to connect to the database while add new student", sqlE);
             }
-            log.debug("Got the id {} of the added student", result);
-            return OptionalInt.of(result);
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while add new student", sqlE);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                    log.info("ResultSet closed");
-                }
-            } catch (SQLException sqlE) {
-                log.error("Fail to close the resultSet", sqlE);
-                throw new DAOException("Fail to close the database while add new student.", sqlE);
-            }
         }
     }
 
@@ -114,7 +106,8 @@ public class StudentDAOImpl implements StudentDAO {
                 Statement statement = connection.createStatement()) {
             log.debug("Deleted the student from the table 'students' by studentID {}", studentID);
             OptionalInt result = OptionalInt.of(statement.executeUpdate(sql));
-            log.debug("Deleted the student from the table 'students' by studentID {} with result {}", studentID, result);
+            log.debug("Deleted the student from the table 'students' by studentID {} with result {}", studentID,
+                    result);
             return result;
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
@@ -128,14 +121,15 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public Optional<List<Student>> findStudentsByCourse(String courseName) throws DAOException {
         log.trace("Find students by course name {}", courseName);
-        ResultSet resultSet = null;
         List<Student> students = new ArrayList<>();
+        String course = courseName.toLowerCase();
+        String sql = String.format(SQL_FINDSTUDENTSBYCOURSE, course);
+        log.trace("Create sql query {}", sql);
         log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
-                PreparedStatement statement = connection.prepareStatement(SQL_FINDSTUDENTSBYCOURSE)) {
-            statement.setString(1, courseName.toLowerCase());
-            resultSet = statement.executeQuery();
-            log.info("Executed sql query {} with course name {}", SQL_FINDSTUDENTSBYCOURSE, courseName);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql)) {
+            log.info("Executed sql query {} ", SQL_FINDSTUDENTSBYCOURSE);
             while (resultSet.next()) {
                 students.add(new Student.StudentBuidler().setStudentID(resultSet.getInt("student_id"))
                         .setFirstName(resultSet.getString("first_name")).setLastName(resultSet.getString("last_name"))
@@ -146,16 +140,6 @@ public class StudentDAOImpl implements StudentDAO {
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while found students by course.", sqlE);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                    log.info("ResultSet closed");
-                }
-            } catch (SQLException sqlE) {
-                log.error("Fail to close the resultSet", sqlE);
-                throw new DAOException("Fail to close the database while found students by course.", sqlE);
-            }
         }
     }
 }

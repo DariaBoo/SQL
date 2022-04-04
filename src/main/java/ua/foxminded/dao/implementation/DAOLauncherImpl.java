@@ -74,15 +74,13 @@ public class DAOLauncherImpl implements DAOLauncher {
             log.info("Assign courses to students by method {}", "assignCoursesToStudents()");
             DataAssignerDAOImpl.getInstance().assignCoursesToStudents();
         } catch (DAOException daoE) {
-            log.error("Fail to connect to the database", daoE);
-            System.err.println("Exception Message : " + daoE.getMessage());
-            System.exit(0);
+            log.error("Fail to connect to the database", daoE);         
         }
         log.trace("End of database preparation");
     }
 
     private void executeScript(String fileDirectory) throws DAOException {
-        log.trace("Start execute script {}", fileDirectory);
+        log.info("Start execute script {}", fileDirectory);
         try {
             if (!Files.exists(Paths.get(fileDirectory))) {
                 log.error("File {} doesn't exist", Paths.get(fileDirectory).getFileName());

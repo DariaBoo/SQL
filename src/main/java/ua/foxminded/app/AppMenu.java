@@ -62,9 +62,7 @@ public class AppMenu {
                     MenuExecutor.executeOption6(input);
                 }
             } catch (DAOException daoE) {
-                log.error("Error occured while execute menu options", daoE);
-                System.err.println(daoE.getMessage());
-                System.exit(0);
+                log.error("Error occured while execute menu options", daoE);               
             }
         } while (button != 0);
         input.close();

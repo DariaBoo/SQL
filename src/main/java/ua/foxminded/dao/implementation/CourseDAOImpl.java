@@ -1,7 +1,6 @@
 package ua.foxminded.dao.implementation;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +28,7 @@ public class CourseDAOImpl implements CourseDAO {
     private static final String SQL_FINDALLCOURSES = "SELECT * FROM schoolmanager.courses ORDER BY course_id";
     private static final String SQL_FINDCOURSESBYSTUDENT = "SELECT schoolmanager.courses.course_id, schoolmanager.courses.course_name, schoolmanager.courses.description FROM schoolmanager.courses\n"
             + "            INNER JOIN schoolmanager.student_course ON schoolmanager.student_course.course_id = schoolmanager.courses.course_id\n"
-            + "            WHERE schoolmanager.student_course.student_id = ?\n" + "ORDER BY course_id";
+            + "            WHERE schoolmanager.student_course.student_id = %d\n" + "ORDER BY course_id";
     private static final String SQL_ADDSTUDENTTOCOURSE = "INSERT INTO schoolmanager.student_course (student_id,course_id) VALUES (%d,%d) ON CONFLICT DO NOTHING";
     private static final String SQL_DELETESTUDENTFROMCOURSE = "DELETE FROM schoolmanager.student_course WHERE schoolmanager.student_course.student_id = %d AND schoolmanager.student_course.course_id = %d";
 
@@ -91,13 +90,13 @@ public class CourseDAOImpl implements CourseDAO {
     @Override
     public Optional<List<Course>> findCoursesByStudentID(int studentID) throws DAOException {
         log.trace("Find courses by studentID {}", studentID);
-        ResultSet resultSet = null;
         List<Course> courses = new ArrayList<>();
+        String sql = String.format(SQL_FINDCOURSESBYSTUDENT, studentID);
+        log.trace("Create sql query {}", sql);
         log.info("Get connection");
         try (Connection connection = DataSourceDAO.getConnection();
-                PreparedStatement statement = connection.prepareStatement(SQL_FINDCOURSESBYSTUDENT)) {
-            statement.setInt(1, studentID);
-            resultSet = statement.executeQuery();
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql)) {
             log.info("Executed sql query {} with studentID {}", SQL_FINDCOURSESBYSTUDENT, studentID);
             while (resultSet.next()) {
                 courses.add(new Course(resultSet.getInt("course_id"), resultSet.getString("course_name"),
@@ -108,17 +107,7 @@ public class CourseDAOImpl implements CourseDAO {
         } catch (SQLException sqlE) {
             log.error("Fail to connect to the database", sqlE);
             throw new DAOException("Fail to connect to the database while found all courses by student id.", sqlE);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    log.info("ResultSet closed");
-                    resultSet.close();
-                }
-            } catch (SQLException sqlE) {
-                log.error("Fail to close the resultSet", sqlE);
-                throw new DAOException("Fail to close the database while found all courses by student id.", sqlE);
-            }
-        }
+        } 
     }
 
     /**
